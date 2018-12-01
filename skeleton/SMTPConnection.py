@@ -107,7 +107,7 @@ class SMTPConnection(threading.Thread):
                 # Check if the client want to reset the connection
                 elif requestCommand[:4] == 'RSET':
                     Reset = True
-                    self.reply("250 Connection is reset") # Fill in
+                    self.reply("250 Connection is reset")
                 # If the client issued command in wrong order, reply it with error
                 elif requestCommand[:4] == 'RCPT' or requestCommand[:4] == 'DATA':
                     self.reply("503 Bad sequence of commands")
@@ -118,8 +118,6 @@ class SMTPConnection(threading.Thread):
             # Wait for Receipant session
             while (not quit) and (not HELOagain) and (not Reset):
                 requestCommand = self.fetch()
-                print('-----------------')
-                print(requestCommand[:4])
                 # if nothing is read from fetch, quit this session
                 if len(requestCommand) == 0:
                     quit = True
@@ -157,7 +155,7 @@ class SMTPConnection(threading.Thread):
                 elif requestCommand[:4] == 'DATA':
                     self.reply('354 Starting mail input')
                     if self.receiveMessage(sender,receiver):
-                        self.reply('''Fill in''')
+                        self.reply('250 Message was saved')
                     else:
                         self.reply('''Fill in''')
                     HELOagain = True
@@ -193,14 +191,8 @@ class SMTPConnection(threading.Thread):
 
     # This method fetch each line from rawData
     def fetch(self):
-        print('fetch()----------------')
-        print(self.fromClient)
         message = self.fromClient.readline()
-        print('after readline---------------')
-        print(message)
         # If the message is less than 4 characters, display error and read again
-        if not message :
-            print('fuck this shit')
         while len(message.strip()) < 4:
             self.reply('Invalid command')
             message = self.fromClient.readline()
@@ -222,7 +214,7 @@ class SMTPConnection(threading.Thread):
                 self.reply("250 8BITMIME")
             # if it is a HELO, display the greetings only
             else:
-                self.reply("250-" + self.localHost + " greets ")
+                self.reply("250 " + self.localHost + " greets ")
             return True
         # if the HELO/EHLO is invalid, display the error message
         else:

@@ -43,7 +43,11 @@ class MessageSave:
         # Sting for encoded message body
         encodedBody = ''
         # directory for saving files
+
+        print('Not yet')
         directory = self.FindVacancy('')
+
+        print('I am dead')
 
         # String for attachment appendix
         attachment = ''
@@ -59,6 +63,7 @@ class MessageSave:
                 break
             dataLine = dataLine.rstrip()
             encodedBody += dataLine + self.CRLF
+            
 
             # Save the Message Header Field (listed in project specification) to the message.txt
             # Different mail client may have different mail struct, you can modify the code here to satify different mail client.
@@ -255,7 +260,7 @@ class MessageSave:
             entry = Path(self.Today()+'_'+str(counter))
         else:
             entry = Path(prefix)
-
+            
         if prefix.rfind('.') >= 0:
             extension = prefix[prefix.rfind('.'):]
             prefix = prefix[:prefix.rfind('.')]
