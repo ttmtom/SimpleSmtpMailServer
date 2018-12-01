@@ -125,7 +125,7 @@ class SMTPConnection(threading.Thread):
                 elif requestCommand[:4] == 'RCPT':
                     if self.validate(requestCommand, self.RECEIVER):
                         receiver = requestCommand[8:].strip()
-                        self.reply('250 Sender <' + receiver + ' > ...OK')
+                        self.reply('250 Receipant ' + receiver + ' ...OK')
                         break
                 # Check whether HELO or EHLO is sent by client
                 elif requestCommand[:4] == 'HELO' or requestCommand[:4] == 'EHLO':
@@ -157,7 +157,7 @@ class SMTPConnection(threading.Thread):
                     if self.receiveMessage(sender,receiver):
                         self.reply('250 Message was saved')
                     else:
-                        self.reply('''Fill in''')
+                        self.reply('451 Requested action aborted: local error in processing')
                     HELOagain = True
                 # Check whether HELO or EHLO is sent by client
                 elif requestCommand[:4] == 'HELO' or requestCommand[:4] == 'EHLO':
@@ -194,7 +194,7 @@ class SMTPConnection(threading.Thread):
         message = self.fromClient.readline()
         # If the message is less than 4 characters, display error and read again
         while len(message.strip()) < 4:
-            self.reply('Invalid command')
+            self.reply('500 Invalid command')
             message = self.fromClient.readline()
 
         return message.strip()
@@ -218,7 +218,7 @@ class SMTPConnection(threading.Thread):
             return True
         # if the HELO/EHLO is invalid, display the error message
         else:
-            self.reply('502 Invalid HELO/EHLO')
+            self.reply('501 Invalid HELO/EHLO')
             return False
 
     # This method checks whether the sender and receiver have valid email address or not
@@ -258,6 +258,4 @@ class SMTPConnection(threading.Thread):
         body += line[1:] + self.CRLF
         # Save the body to file by calling MessageSave class
         newMessage = MessageSave(sender, receiver, body)
-        print('fuck this receive Message')
-        print(newMessage)
         return newMessage.save()

@@ -59,8 +59,8 @@ class MessageSave:
                 break
             dataLine = dataLine.rstrip()
             encodedBody += dataLine + self.CRLF
-            
-
+            print('-----------------------')
+            print(dataLine)
             # Save the Message Header Field (listed in project specification) to the message.txt
             # Different mail client may have different mail struct, you can modify the code here to satify different mail client.
             if re.fullmatch('^From:.*', dataLine) or re.fullmatch('^To:.*', dataLine) or re.fullmatch('Date:.*', dataLine) or re.fullmatch('Subject:.*', dataLine):
@@ -69,7 +69,8 @@ class MessageSave:
             elif not isHeader or isMultiLine:
                 break
             # Check all the tags in Content-Type (may be multiple line)
-            elif re.fullmatch('''Fill in''', dataLine) or isMultiLine:
+            elif re.fullmatch('^Content-Type:.*', dataLine) or isMultiLine:
+                print('------in content tupe')
                 Body += dataLine + self.CRLF
                 if not contentType:
                     # Set up the flag to indicate Content-Type is processing
@@ -267,7 +268,8 @@ class MessageSave:
                 entry = Path(self.Today()+'_'+str(counter))
             else:
                 entry = Path(prefix+'_'+str(counter)+extension)
-        return entry.resolve()
+
+        return entry
 
     # This method return the date in simple DDMMM format
     def Today(self):
