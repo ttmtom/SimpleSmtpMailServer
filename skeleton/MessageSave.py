@@ -43,11 +43,7 @@ class MessageSave:
         # Sting for encoded message body
         encodedBody = ''
         # directory for saving files
-
-        print('Not yet')
         directory = self.FindVacancy('')
-
-        print('I am dead')
 
         # String for attachment appendix
         attachment = ''
@@ -260,7 +256,7 @@ class MessageSave:
             entry = Path(self.Today()+'_'+str(counter))
         else:
             entry = Path(prefix)
-            
+
         if prefix.rfind('.') >= 0:
             extension = prefix[prefix.rfind('.'):]
             prefix = prefix[:prefix.rfind('.')]
@@ -272,7 +268,6 @@ class MessageSave:
             else:
                 entry = Path(prefix+'_'+str(counter)+extension)
         return entry.resolve()
-
 
     # This method return the date in simple DDMMM format
     def Today(self):

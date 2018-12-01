@@ -258,4 +258,6 @@ class SMTPConnection(threading.Thread):
         body += line[1:] + self.CRLF
         # Save the body to file by calling MessageSave class
         newMessage = MessageSave(sender, receiver, body)
+        print('fuck this receive Message')
+        print(newMessage)
         return newMessage.save()
