@@ -56,7 +56,7 @@ class SMTPConnection(threading.Thread):
         print('remoteHost: ', self.remoteHost)
 
         # Send the appropriate SMTP Welcome command.
-        self.reply('220 ' + self.localHost + ' Simple Mail Trnsfer Service Ready')
+        self.reply('''Fill in''')
 
         # Wait the client to send the HELO or EHLO command
         while not quit:
@@ -65,18 +65,18 @@ class SMTPConnection(threading.Thread):
             if len(requestCommand) == 0:
                 quit = True
             # Check whether HELO or EHLO is sent by client
-            elif requestCommand[:4] == 'HELO' or requestCommand[:4] == 'EHLO':
+            elif requestCommand[:4] == 'HELO' or requestCommand[:4] == '''Fill in''':
                 if self.parseHELO(requestCommand):
                     break
             # Check if client want to close the connection
-            elif requestCommand[:4] == 'QUIT':
+            elif requestCommand[:4] == '''Fill in''':
                 quit = True
             # Check if the client want to reset the connection
             elif requestCommand[:4] == 'RSET':
                 self.reply("250 Connection is reset")
             # If the client send the command that is not expected to see now, output an error
-            elif requestCommand[:4] == 'MAIL' or requestCommand[:4] == 'RCPT' or requestCommand[:4] == 'DATA':
-                self.reply('503 Bad sequence of commands')
+            elif requestCommand[:4] == 'MAIL' or requestCommand[:4] == '''Fill in''' or requestCommand[:4] == '''Fill in''':
+                self.reply('''Fill in''')
             # For other unrecognized command, post the error reply here
             else:
                 self.reply("500 Command unrecognized: \""+requestCommand+"\"")
@@ -92,7 +92,7 @@ class SMTPConnection(threading.Thread):
                 if len(requestCommand) == 0:
                     quit = True
                 # If the client address MAIL command, validate it with validate()
-                elif requestCommand[:4] == 'MAIL':
+                elif requestCommand[:4] == '''Fill in''':
                     if self.validate(requestCommand, self.SENDER):
                         sender = requestCommand[10:].strip()
                         self.reply("250 Sender "+sender+" ...OK")
@@ -102,12 +102,12 @@ class SMTPConnection(threading.Thread):
                     if self.parseHELO(requestCommand):
                         HELOagain = True
                 # Check if client want to close the connection
-                elif requestCommand[:4] == 'QUIT':
+                elif requestCommand[:4] == '''Fill in''':
                     quit = True
                 # Check if the client want to reset the connection
-                elif requestCommand[:4] == 'RSET':
+                elif requestCommand[:4] == '''Fill in''':
                     Reset = True
-                    self.reply("250 Connection is reset") # Fill in
+                    self.reply('''Fill in''')
                 # If the client issued command in wrong order, reply it with error
                 elif requestCommand[:4] == 'RCPT' or requestCommand[:4] == 'DATA':
                     self.reply("503 Bad sequence of commands")
@@ -118,16 +118,14 @@ class SMTPConnection(threading.Thread):
             # Wait for Receipant session
             while (not quit) and (not HELOagain) and (not Reset):
                 requestCommand = self.fetch()
-                print('-----------------')
-                print(requestCommand[:4])
                 # if nothing is read from fetch, quit this session
                 if len(requestCommand) == 0:
                     quit = True
                 # If the client send the appropriate command
-                elif requestCommand[:4] == 'RCPT':
+                elif requestCommand[:4] == '''Fill in''':
                     if self.validate(requestCommand, self.RECEIVER):
                         receiver = requestCommand[8:].strip()
-                        self.reply('250 Sender <' + receiver + ' > ...OK')
+                        self.reply('''Fill in''')
                         break
                 # Check whether HELO or EHLO is sent by client
                 elif requestCommand[:4] == 'HELO' or requestCommand[:4] == 'EHLO':
@@ -154,8 +152,8 @@ class SMTPConnection(threading.Thread):
                 if len(requestCommand) == 0:
                     quit = True
                 # If the client start DATA command, pass the control to receiveMessage() and reply the client
-                elif requestCommand[:4] == 'DATA':
-                    self.reply('354 Starting mail input')
+                elif requestCommand[:4] == '''Fill in''':
+                    self.reply('''Fill in''')
                     if self.receiveMessage(sender,receiver):
                         self.reply('''Fill in''')
                     else:
@@ -173,7 +171,7 @@ class SMTPConnection(threading.Thread):
                     Reset = True
                     self.reply("250 Connection is reset")
                 # If the client issued command in wrong order, reply it with error
-                elif requestCommand[:4] == 'MAIL' or requestCommand[:4] == 'RCPT':
+                elif requestCommand[:4] == '''Fill in''' or requestCommand[:4] == '''Fill in''':
                     self.reply("503 Bad sequence of commands")
                 # For other unrecognized command, post the error reply here
                 else:
@@ -193,18 +191,11 @@ class SMTPConnection(threading.Thread):
 
     # This method fetch each line from rawData
     def fetch(self):
-        print('fetch()----------------')
-        print(self.fromClient)
         message = self.fromClient.readline()
-        print('after readline---------------')
-        print(message)
         # If the message is less than 4 characters, display error and read again
-        if not message :
-            print('fuck this shit')
         while len(message.strip()) < 4:
-            self.reply('Invalid command')
+            self.reply('''Fill in''')
             message = self.fromClient.readline()
-
         return message.strip()
 
     # This method checks whether the message is HELO or EHLO
@@ -217,16 +208,16 @@ class SMTPConnection(threading.Thread):
         # Check whether it is a valid HELO/EHLO command (with domain)
         if re.fullmatch('\\s+(\\w+\\.)*\\w+\\s*', command[4:]):
             # if it is a EHLO, display the greetings with server compatibility
-            if isEHLO:
+            if '''Fill in''':
                 self.reply("250-" + self.localHost + " greets " + self.remoteHost)
                 self.reply("250 8BITMIME")
             # if it is a HELO, display the greetings only
             else:
-                self.reply("250-" + self.localHost + " greets ")
+                self.reply('''Fill in''')
             return True
         # if the HELO/EHLO is invalid, display the error message
         else:
-            self.reply('502 Invalid HELO/EHLO')
+            self.reply('''Fill in''')
             return False
 
     # This method checks whether the sender and receiver have valid email address or not
@@ -267,3 +258,4 @@ class SMTPConnection(threading.Thread):
         # Save the body to file by calling MessageSave class
         newMessage = MessageSave(sender, receiver, body)
         return newMessage.save()
+

@@ -62,13 +62,13 @@ class MessageSave:
 
             # Save the Message Header Field (listed in project specification) to the message.txt
             # Different mail client may have different mail struct, you can modify the code here to satify different mail client.
-            if re.fullmatch('^From:.*', dataLine) or re.fullmatch('^To:.*', dataLine) or re.fullmatch('Date:.*', dataLine) or re.fullmatch('Subject:.*', dataLine):
+            if re.fullmatch('^From:.*', dataLine) or re.fullmatch('^To:.*', dataLine) or re.fullmatch('''Fill in''', dataLine) or re.fullmatch('''Fill in''', dataLine):
                 Body += dataLine + self.CRLF
             # Break the while loop if all the header lines have been processed
-            elif not isHeader or isMultiLine:
+            elif '''Fill in''' or '''Fill in''':
                 break
             # Check all the tags in Content-Type (may be multiple line)
-            elif re.fullmatch('''Fill in''', dataLine) or isMultiLine:
+            elif re.fullmatch('''Fill in''', dataLine) or '''Fill in''':
                 Body += dataLine + self.CRLF
                 if not contentType:
                     # Set up the flag to indicate Content-Type is processing
@@ -223,8 +223,8 @@ class MessageSave:
                         attachment += fileName[fileName.rfind('\\') + 1:] + self.CRLF
 
                     # Reset the necessary flags and variable for next MIME part.
-                    base64Encoded = False
-                    _7bitEncoded = False
+                    base64Encoded = '''Fill in'''
+                    _7bitEncoded = '''Fill in'''
                     plainText = False
                     isHeader = True
                     encodedBody = ''
