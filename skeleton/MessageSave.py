@@ -53,32 +53,44 @@ class MessageSave:
         Path(directory).mkdir()
 
         # Read the message header for the parameters used in this Email
+        print('--------------------start read header---------------------------')
         while True:
             dataLine = Data.readline()
             if dataLine == '':
                 break
             dataLine = dataLine.rstrip()
             encodedBody += dataLine + self.CRLF
-            print('-----------------------')
-            print(dataLine)
+            print('-----------dataLine------------: ' + dataLine)
+
             # Save the Message Header Field (listed in project specification) to the message.txt
             # Different mail client may have different mail struct, you can modify the code here to satify different mail client.
-            if re.fullmatch('^From:.*', dataLine) or re.fullmatch('^To:.*', dataLine) or re.fullmatch('Date:.*', dataLine) or re.fullmatch('Subject:.*', dataLine):
+            if re.fullmatch('^From:.*', dataLine) or \
+                re.fullmatch('^To:.*', dataLine) or \
+                re.fullmatch('Date:.*', dataLine) or \
+                re.fullmatch('Subject:.*', dataLine) or \
+                re.fullmatch('Message-Id:.*', dataLine) or \
+                re.fullmatch('Importance:.*', dataLine) or \
+                re.fullmatch('User-Agent:.*', dataLine) or \
+                re.fullmatch('X.+', dataLine) or \
+                re.fullmatch('Thread-Index:.*', dataLine):
+                print('from to date sub ------------')
                 Body += dataLine + self.CRLF
             # Break the while loop if all the header lines have been processed
-            elif not isHeader or isMultiLine:
+            elif (not isHeader) or \
+                dataLine == '':
+                print('break---------------' + str(isHeader) + ': ')
                 break
             # Check all the tags in Content-Type (may be multiple line)
             elif re.fullmatch('^Content-Type:.*', dataLine) or isMultiLine:
-                print('------in content tupe')
+                print('Content-Type----------------')
                 Body += dataLine + self.CRLF
                 if not contentType:
                     # Set up the flag to indicate Content-Type is processing
-                    contentType = '''Fill in'''
+                    contentType = True
                     # Crop the "Content-Type:" head
-                    dataLine = '''Fill in'''
+                    dataLine = dataLine.replace('Content-Type:', '')
                 # If all the Content-Type tags is read, put down the flag
-                elif not re.fullmatch('''Fill in''', dataLine):
+                elif not re.fullmatch('^Content-Type:.*', dataLine):
                     contentType = False
 
                 # Parse the tags as tokens
@@ -86,64 +98,81 @@ class MessageSave:
                 for parameter in attribute:
                     parameter = parameter.strip()
                     # Check if this tag talks about boundary
-                    if re.fullmatch('''Fill in''', parameter):
+                    if re.fullmatch('boundary=.*', parameter):
                         boundary = parameter[parameter.find("\"")+1:parameter.rfind("\"")]
+                        print('find the boundary-------: ' + boundary)
                     # Check if this tag talks about multipart
-                    if re.fullmatch('''Fill in''', parameter):
+                    if re.fullmatch('multipart.*', parameter):
                         multipart = True
                     # Check if this tag talks about text/plain
-                    if re.fullmatch('''Fill in''', parameter):
+                    if re.fullmatch('text/plain', parameter):
                         plainText = True
             # check the encoding of the transferred content
             elif re.fullmatch('Content-Transfer-Encoding:.*', dataLine):
+                print('Content-Transfer-Encoding:----------------')
                 Body += dataLine + self.CRLF
                 if re.fullmatch('Content-Transfer-Encoding:\\s*base64\\s*', dataLine):
                     base64Encoded = True
                 elif re.fullmatch('Content-Transfer-Encoding:\\s*7bit\\s*', dataLine):
                     _7bitEncoded = True
             # Check if MIME is enabled in this Email
-            elif re.fullmatch('''Fill in''', dataLine):
+            elif re.fullmatch('^Mime-Version:.*', dataLine):
+                print('Mime-Version::----------------')
                 mime = True
                 Body += dataLine + self.CRLF
             # Check if invalid header field exist, if yes, it means that this is not header
             elif not (re.fullmatch('From:.*', dataLine) or re.fullmatch('To:.*', dataLine) or re.fullmatch('Message-Id:.*', dataLine) or re.fullmatch('Importance:.*', dataLine) or re.fullmatch('User-Agent:.*', dataLine) or re.fullmatch('X.+', dataLine) or re.fullmatch('Thread-Index:.*', dataLine) or re.fullmatch('Content-Language:.*', dataLine) or isMultiLine):
+                print('not from to .... --------------------')
                 isHeader = False
 
             # Check if this header consists of multiple line
             if re.fullmatch('.*;$', dataLine):
+                print('yes')
                 isMultiLine = True
             else:
+                print('no')
                 isMultiLine = False
+
+        print('------------------end of header-----------------------')
 
         # Separate the message header with actual message content
         Body += "-------------------------------------------------" + self.CRLF
 
         # If the above while loop do processing header, discard them
         if isHeader:
+            print('clear the encodedBody-------------')
             encodedBody = ''
 
         # This while loop crops the non-MIME parts in MIME email
+        print('---------------------mime--------------------------')
+
         while True:
             dataLine = Data.readline()
             if dataLine == '':
                 break
             dataLine = dataLine.rstrip()
+            print('-----------dataLine------------: ' + dataLine)
             # Check if we meet the boundary in MIME message
             # Here we use equals instead of matchs because the matches opration may be confused due to the Escape character in the boudnary string
-            if mime and (dataLine == '''Fill in''' or dataLine == '''Fill in'''):
+            if mime and (dataLine == ("--"+boundary) or dataLine == ("--"+boundary+"--")):
+                print('end of dataline---------------------')
                 break
             # if the Email is non-MIME, Single Part or without header, save the body
-            encodedBody += '''Fill in'''
+            encodedBody += dataLine + self.CRLF
 
         # Do it only if the Email is non-MIME, Single Part or without header
-        if '''Fill in''' or (not mime) or '''Fill in''':
+        if (not multipart) or (not mime) or (not isHeader):
+            print('this is non-MIME-----------')
+            print(encodedBody)
             # If it is base64 encoded, decode it and place it at message.txt
-            if '''Fill in''' and len(encodedBody) > 0:
+            if base64Encoded and len(encodedBody) > 0:
                 Body += base64.b64decode(encodedBody).decode()
             else:
-                Body += '''Fill in'''
+                Body += encodedBody
+
         # This block is only for Multipart Message
         else:
+            print('for multipart message-------------------')
             # isHeader is reused to indicate MIME header is processing
             isHeader = True
             # A flag to indicate MIME-style message.txt is filled or not
@@ -153,6 +182,8 @@ class MessageSave:
             # This while loop loops for each part
             while True:
                 dataLine = Data.readline()
+                print('-----------dataLine------------: ' + dataLine)
+
                 if dataLine == '':
                     break
                 dataLine = dataLine.rstrip()
@@ -162,14 +193,14 @@ class MessageSave:
                     if dataLine == '':
                         isHeader = False
                     # Check the supported encoding method (base64/7bit) and set the corresponding flags
-                    elif re.fullmatch('''Fill in''', dataLine):
-                        '''Fill in'''
+                    elif re.fullmatch('Content-Transfer-Encoding:\\s*base64\\s*', dataLine):
+                        base64Encoded = True
                         Body += dataLine + self.CRLF + self.CRLF
-                    elif re.fullmatch('''Fill in''', dataLine):
-                        '''Fill in'''
+                    elif re.fullmatch('Content-Transfer-Encoding:\\s*7bit\\s*', dataLine):
+                        _7bitEncoded = True
                         Body += dataLine + self.CRLF + self.CRLF
                     # Check the Content-Type tags, Same as above
-                    elif re.fullmatch('Content-Type:.*', dataLine) or contentType:
+                    elif re.fullmatch('^Content-Type:.*', dataLine) or contentType:
                         Body += dataLine + self.CRLF
                         if not contentType:
                             contentType = True
@@ -269,7 +300,7 @@ class MessageSave:
             else:
                 entry = Path(prefix+'_'+str(counter)+extension)
 
-        return entry
+        return entry.resolve()
 
     # This method return the date in simple DDMMM format
     def Today(self):
